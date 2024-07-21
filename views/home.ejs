@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>FOTOTECA IRONHACK 2024</title>
+    <%- include('./partials/head') %>
+</head>
+    <header class="container">
+        <%- include('./partials/nav') %>
+    </header>
+    <main class="container">
+      <!-- si no hay imagenes en la fototeca animamos al usuario a añadir nuevas. En caso contrario, mostramos el número de imágenes añadidas -->
+       <% if (images.length == 0) { %>
+        <p>No images uploaded so far. Go ahead and <a href="/add-image-form">add one!</a></p>
+       <% } else {%>
+        <p>There are currently <%= images.length %> image(s) uploaded.</p>
+        <% } %>
+
+
+      <section class="grid">
+        <% for (const image of images) { %>
+          <article>
+            <header><%= image.title %></header>
+            <div><img src="<%= image.url %>" alt="<%= image.title %>"></div>
+            <div><%= image.date %></div>
+          </article>
+        <% } %>
+      </section>
+
+
+    </main>
+</body>
+</html>
