@@ -67,6 +67,30 @@ app.post('/add-image-form', (req, res) => {
 
 })
 
+// OPCIONAL: nuevo endpoint para gestionar la búsqueda
+app.get('/search', (req, res) => {
+    
+    // 1. coger el valor del parametro keyword de la query string
+    const queryKeyword = document.querySelector('input[name="keyword"]');
+    const searchQuery = new URLSearchParams(window.location.search).get('keyword');
+
+    // 2. buscar en la base de datos usando el metodo filter
+    const filteredImages = images.filter(image => {
+        return image.title.toLowerCase().includes(searchQuery.toLowerCase());
+    });
+
+    // para las mayusculas-minusculas, dos opciones:
+        // 1. usar el metodo toLowerCase() en el parametro de la query string o
+        // 2. usar una expresión regular
+        
+    
+    // 3. usar res.render para renderizar la vista home.ejs y pasarle el array de imagenes filtrado
+    res.render('home',{
+        images: filteredImages
+    }
+    );
+});
+
 
 
 

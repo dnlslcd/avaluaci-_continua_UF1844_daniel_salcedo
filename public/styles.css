@@ -10,3 +10,12 @@
 .alert.success {
     background-color: #04AA6D;
 }
+
+.image__title {
+    text-transform: uppercase;
+}
+
+.search-form {
+    display: flex;
+    gap: 1rem;
+}
