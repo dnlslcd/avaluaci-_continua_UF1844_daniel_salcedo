@@ -19,7 +19,7 @@
       <section class="grid">
         <% for (const image of images) { %>
           <article>
-            <header><%= image.title %></header>
+            <header><%= image.title.toUpperCase() %></header>
             <div><img src="<%= image.url %>" alt="<%= image.title %>"></div>
             <div><%= image.date %></div>
           </article>

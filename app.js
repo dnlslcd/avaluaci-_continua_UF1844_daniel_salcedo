@@ -56,9 +56,9 @@ app.post('/add-image-form', (req, res) => {
 
     // console.log('array de imagenes actualizado: ', images);
 
-    
+        // TO DO:
     // tras insertar la imagen dejaremos el formulario visible
-    // TODO: Sort --> usarlo para ordenar las fotografías por fecha antes de responder al cliente
+    // Sort --> usarlo para ordenar las fotografías por fecha antes de responder al cliente
 
 
     res.render('new-image-form', {
