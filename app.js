@@ -24,7 +24,9 @@ app.use(morgan('tiny'));
 // Petición GET a '/' --> renderizo la home.ejs 
 app.get('/', (req, res) => {
 
-    // 2. usar en el home.ejs el forEach para iterar por todas las imagenes de la variable 'images'.
+     images.sort((a, b) => new Date(a.date) - new Date(b.date));
+    
+     // 2. usar en el home.ejs el forEach para iterar por todas las imagenes de la variable 'images'.
     // mostrar de momento solo el titulo
     res.render('home', {
         images
@@ -66,6 +68,8 @@ app.post('/add-image-form', (req, res) => {
     }); // opción: res.send('Datos recibidos');
 
 })
+
+
 
 // OPCIONAL: nuevo endpoint para gestionar la búsqueda
 app.get('/search', (req, res) => {
