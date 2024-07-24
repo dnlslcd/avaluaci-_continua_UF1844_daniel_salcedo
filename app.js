@@ -13,7 +13,19 @@ app.use(express.urlencoded({extended: true}));
 app.use(express.static('public'));
 
 // base de datos de imagenes
-const images = [];
+const images = [{
+    title: "happy cat",
+    url: "https://images.pexels.com/photos/45201/kitty-cat-kitten-pet-45201.jpeg"
+}, {
+    title: "happy dog",
+    url: "https://images.pexels.com/photos/1805164/pexels-photo-1805164.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+}, {
+    title: "cat snow",
+    url: "https://images.pexels.com/photos/3923387/pexels-photo-3923387.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+}, {
+    title: "woman in lake",
+    url: "https://images.pexels.com/photos/2365067/pexels-photo-2365067.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+}];
 
 // especificar a Express que quiero usar EJS como motor de plantillas 
 app.set('view engine', 'ejs');
@@ -23,8 +35,6 @@ app.use(morgan('tiny'));
 
 // Petición GET a '/' --> renderizo la home.ejs 
 app.get('/', (req, res) => {
-
-     images.sort((a, b) => new Date(a.date) - new Date(b.date));
     
      // 2. usar en el home.ejs el forEach para iterar por todas las imagenes de la variable 'images'.
     // mostrar de momento solo el titulo
@@ -48,6 +58,15 @@ app.post('/add-image-form', (req, res) => {
     // 1. actualizar el array 'images' con la información de req.body
     const { title, url, date } = req.body;
 
+    // OPCIONAL: validación del lado servidor de que realmente nos han enviado un title
+        // expresion para validar el formato del title
+        const titleRegex = /^[0-9A-Z\s_]+$/i;
+    // si el title no cumple la expresion, lanzo un error
+    if (title.length > 30 || !titleRegex.test(title)) {
+        return res.status(400).send('Algo ha salido mal...');
+    }
+
+
         // opción 1 (sacar los campos):
         images.push({
         title,
@@ -60,7 +79,8 @@ app.post('/add-image-form', (req, res) => {
 
         // TO DO:
     // tras insertar la imagen dejaremos el formulario visible
-    // Sort --> usarlo para ordenar las fotografías por fecha antes de responder al cliente
+    // ordenar las fotografías por fecha de más reciente a más antigua
+    images.sort((a, b) => new Date(b.date) - new Date(a.date));
 
 
     res.render('new-image-form', {

@@ -19,3 +19,33 @@
     display: flex;
     gap: 1rem;
 }
+
+.gallery {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+@media (min-width: 760px) {
+    .gallery {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .gallery__item {
+        position: relative;
+        width: 100%;
+        padding-bottom: 100%;
+        /* Mantiene la proporción cuadrada. Buscar en Google o Chat GPT: "Cómo crear un grid de imágenes cuadradas" */
+    }
+
+    .gallery__item img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        /* Escala y recorta la imagen para llenar el contenedor */
+    }
+}
