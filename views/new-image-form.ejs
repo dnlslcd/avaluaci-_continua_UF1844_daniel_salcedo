@@ -12,7 +12,7 @@
     </header>
     <form class="container" action="/add-image-form" method="post">
         <label for="title">Image Title:</label>
-        <input type="text" name="title" id="title" maxlength="30" pattern="[A-Za-z0-9_ ]{1,30}" title="Image name must contain only up to 30 characters, including letters, numbers, white spaces and/or underscores." required>
+        <input type="text" name="title" id="title" maxlength="30" pattern="[0-9A-Za-z\s_]+" title="Image name must contain only up to 30 characters, including letters, numbers, white spaces and/or underscores." required>
         <label for="url">Image URL:</label>
         <input type="url" name="url" id="url" required>
         <label for="date">Image date:</label>
