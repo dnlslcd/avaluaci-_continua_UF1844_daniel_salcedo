@@ -13,8 +13,10 @@
     <form class="container" action="/add-image-form" method="post">
         <label for="title">Image Title:</label>
         <input type="text" name="title" id="title" maxlength="30" pattern="[0-9A-Za-z\s_]+" title="Image name must contain only up to 30 characters, including letters, numbers, white spaces and/or underscores." required>
+
         <label for="url">Image URL:</label>
         <input type="url" name="url" id="url" required>
+
         <label for="date">Image date:</label>
         <input type="date" name="date" id="date" required>
 
@@ -26,5 +28,9 @@
     <div id="message" class="container alert success">Image added successfully</div>
  <% } %>
 
+ <!-- mensaje en caso de que la URL ingresada esté repetida-->
+ <% if (imageIsRepeated) { %>
+    <div id="message" class="container alert error">Image already exists: <%= imageIsRepeated %></div>
+ <% } %>
 </body>
 </html>

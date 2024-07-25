@@ -74,11 +74,6 @@ app.post('/add-image-form', async (req, res) => {
         return res.status(400).send('Algo ha salido mal...');
     }
 
-
-        
-
-    // console.log('array de imagenes actualizado: ', images);
-
         // TO DO:
     // ordenar las fotografías por fecha de más reciente a más antigua
     images.sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -90,6 +85,7 @@ app.post('/add-image-form', async (req, res) => {
 
     // comprobar si url está repetida:
     const isRepeated = images.some(i => i.url.toLocaleLowerCase() == url.toLocaleLowerCase());
+        
     // si está repetida, lanzo un error
     if (isRepeated){
         res.render('new-image-form', {
@@ -97,6 +93,7 @@ app.post('/add-image-form', async (req, res) => {
             imageIsRepeated: url
         });
     } 
+    
     // si no está repetida, todo sigue correctamente
     else {
         // opción 1 (sacar los campos):
@@ -110,10 +107,9 @@ app.post('/add-image-form', async (req, res) => {
         
         // opción 2: images.push(req.body);
 
-
         res.render('new-image-form', {
             imageIsAdded: true,
-            imageIsRepeated: undefined
+            imageIsRepeated: false
         });
     }
     
@@ -133,7 +129,7 @@ function isSubstring(s1, s2) {
     return regexp.test(s1);
 }
 
-// OPCIONAL: nuevo endpoint para gestionar la búsqueda
+// OPCIONAL: petición GET para gestionar la búsqueda
 app.get('/search', (req, res) => {
     
     // 1. coger el valor del parametro keyword de la query string

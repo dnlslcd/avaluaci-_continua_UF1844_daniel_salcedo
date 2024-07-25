@@ -11,6 +11,10 @@
     background-color: #04AA6D;
 }
 
+.alert.error {
+    background-color: #ce0808;
+}
+
 .image__title {
     text-transform: uppercase;
 }
