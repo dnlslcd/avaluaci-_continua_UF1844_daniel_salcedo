@@ -42,7 +42,7 @@ app.use(morgan('tiny'));
 // Petición GET a '/' --> renderizo la home.ejs 
 app.get('/', (req, res) => {
     
-     // 2. usar en el home.ejs el forEach para iterar por todas las imagenes de la variable 'images'.
+    // 2. usar en el home.ejs el forEach para iterar por todas las imagenes de la variable 'images'.
     // mostrar de momento solo el titulo
     res.render('home', {
         images

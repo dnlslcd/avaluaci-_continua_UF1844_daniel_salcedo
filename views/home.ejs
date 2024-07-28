@@ -22,7 +22,7 @@
             <header><%= image.title.toUpperCase() %></header>
             <div><img src="<%= image.url %>" alt="<%= image.title %>"></div>
             <div><%= image.date %></div>
-            <div>dominant color: <%= image.dominantColor %></div>
+            <div style="background-color: rgb(<%= image.dominantColor %>)">dominant color: <%= image.dominantColor %></div>
           </article>
         <% } %>
       </section>
