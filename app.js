@@ -148,7 +148,11 @@ app.get('/search', (req, res) => {
 });
 
 
-
+// uso de middleware para gestionar cualquier error imprevisto de la app y fallar de forma "grácil"
+app.use((err, req, res, next) => {
+    console.log(err.stack)
+    res.status(500).send('<p>Oops! Something went wrong. Developers will be informed. Thanks for your patience and try back again later, or go back to the <a href="/">home page</a></p>')
+    });
 
 
 
