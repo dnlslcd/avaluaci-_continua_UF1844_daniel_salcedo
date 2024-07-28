@@ -80,8 +80,15 @@ app.post('/add-image-form', async (req, res) => {
 
 
     // extraer color con el modulo color-thief-node:
-    const dominantColor = await getColorFromURL(url);
-
+    let dominantColor;
+    try {
+        await getColorFromURL(url);
+    }
+    catch (err) {
+        console.error("Ha ocurrido un error: ", err);
+        res.send('We werent able to get the dominant color from image with URL: ' + url + ". Please, try another URL.");
+        return;
+    }
 
     // comprobar si url está repetida:
     const isRepeated = images.some(i => i.url.toLocaleLowerCase() == url.toLocaleLowerCase());
