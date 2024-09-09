@@ -3,6 +3,19 @@ const express = require('express');
 const morgan = require('morgan');
 const {getColorFromURL} = require('color-thief-node');
 
+// objetos de biblio mongodb:
+const {MongoClient, ServerApiVersion} = require("mongodb");
+// connection string
+const uri = "mongodb+srv://dani:dani@cluster0.hyxsuo4.mongodb.net/";
+// objeto MongoClient + MongoClientOptions
+const client = new MongoClient(uri, {
+    serverApi: {
+        version: ServerApiVersion.v1,
+        strict: true,
+        deprecationErrors: true,
+    }
+    }
+    );
 // const { title } = require('process'); ???
 
 // creamos una instancia del servidor Express
@@ -15,21 +28,7 @@ app.use(express.urlencoded({extended: true}));
 app.use(express.static('public'));
 
 // base de datos de imagenes
-const images = [
-    {
-    title: "happy cat",
-    url: "https://images.pexels.com/photos/45201/kitty-cat-kitten-pet-45201.jpeg"
-}, {
-    title: "happy dog",
-    url: "https://images.pexels.com/photos/1805164/pexels-photo-1805164.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-}, {
-    title: "cat snow",
-    url: "https://images.pexels.com/photos/3923387/pexels-photo-3923387.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-}, {
-    title: "woman in lake",
-    url: "https://images.pexels.com/photos/2365067/pexels-photo-2365067.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-}
-];
+let database;
 
 
 
@@ -45,7 +44,7 @@ app.get('/', (req, res) => {
     // 2. usar en el home.ejs el forEach para iterar por todas las imagenes de la variable 'images'.
     // mostrar de momento solo el titulo
     res.render('home', {
-        images
+        database
     });
 })
 
@@ -104,15 +103,22 @@ app.post('/add-image-form', async (req, res) => {
     
     // si no está repetida, todo sigue correctamente
     else {
-        // opción 1 (sacar los campos):
-        images.push({
-            title,
-        // 3. añadir los otros campos del formulario y sus validaciones
-            url,
-            date,
-            dominantColor
-        }); 
+        // // opción 1 (sacar los campos):
+        // images.push({
+        //     title,
+        // // 3. añadir los otros campos del formulario y sus validaciones
+        //     url,
+        //     date,
+        //     dominantColor
+        // }); 
         
+        /** TODO: insertar un nuevo documento en la colección 'images' de la bbdd 'ironhack'*/
+        database.collection("images").insertOne({
+            title, 
+            url,
+            date: new Date(date)
+     });
+
         // opción 2: images.push(req.body);
 
         res.render('new-image-form', {
@@ -167,4 +173,13 @@ app.use((err, req, res, next) => {
 
 
 // levanto servidor
-app.listen(3001, () => {console.log('Servidor corriendo en el puerto 3001')});
+app.listen(3001, async () => {
+    console.log('Sever up at 3001');
+    try {
+        await client.connect();
+        database = client.db("ironhack");
+        console.log('Conectado a MongoDB');
+    } catch (error) {
+        console.log('Error al conectarse a MongoDB', error);
+    }
+});
