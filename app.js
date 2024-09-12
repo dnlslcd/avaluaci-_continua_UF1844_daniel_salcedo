@@ -16,7 +16,9 @@ const client = new MongoClient(uri, {
     }
     }
     );
-// const { title } = require('process'); ???
+
+// variable global para gestionar la bbdd
+let database;
 
 // creamos una instancia del servidor Express
 const app = express();
@@ -28,9 +30,7 @@ app.use(express.urlencoded({extended: true}));
 app.use(express.static('public'));
 
 // base de datos de imagenes
-let database;
-
-
+let images = [];
 
 // especificar a Express que quiero usar EJS como motor de plantillas 
 app.set('view engine', 'ejs');
@@ -44,7 +44,7 @@ app.get('/', (req, res) => {
     // 2. usar en el home.ejs el forEach para iterar por todas las imagenes de la variable 'images'.
     // mostrar de momento solo el titulo
     res.render('home', {
-        database
+        images
     });
 })
 
@@ -92,7 +92,6 @@ app.post('/add-image-form', async (req, res) => {
 
     // comprobar si url está repetida:
     const isRepeated = images.some(i => i.url.toLocaleLowerCase() == url.toLocaleLowerCase());
-        
     // si está repetida, lanzo un error
     if (isRepeated){
         res.render('new-image-form', {
