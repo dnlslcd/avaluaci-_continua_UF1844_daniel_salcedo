@@ -29,9 +29,6 @@ app.use(express.urlencoded({extended: true}));
 // añado el middleware para que el cliente pueda hacer GETs a los recursos publicos en la carpeta 'public'
 app.use(express.static('public'));
 
-// base de datos de imagenes
-let images = [];
-
 // especificar a Express que quiero usar EJS como motor de plantillas 
 app.set('view engine', 'ejs');
 
@@ -39,10 +36,14 @@ app.set('view engine', 'ejs');
 app.use(morgan('tiny'));
 
 // Petición GET a '/' --> renderizo la home.ejs 
-app.get('/', (req, res) => {
+app.get('/', async (req, res) => {
     
     // 2. usar en el home.ejs el forEach para iterar por todas las imagenes de la variable 'images'.
     // mostrar de momento solo el titulo
+
+    //TODO2: ahora las imagenes que pasamos a la vista tienen que venir de la instancia de mongo (usar find)
+    const images = await database.collection('images').find().toArray();
+
     res.render('home', {
         images
     });
@@ -58,9 +59,9 @@ app.get('/add-image-form', (req, res) => {
 
 // Petición POST a '/add-image-form' --> recibo los datos del formulario y actualizo mi "base de datos"  
 app.post('/add-image-form', async (req, res) => {
-    // todos los datos nos vienen en un req.body
-    console.log(req.body);
 
+    let dominantColor;
+    let isRepeated;
     // 1. actualizar el array 'images' con la información de req.body
     const { title, url, date } = req.body;
 
@@ -73,15 +74,13 @@ app.post('/add-image-form', async (req, res) => {
         return res.status(400).send('Algo ha salido mal...');
     }
 
-        // TO DO:
+        // TODO0:
     // ordenar las fotografías por fecha de más reciente a más antigua
-    images.sort((a, b) => new Date(b.date) - new Date(a.date));
-
+    //images.sort((a, b) => new Date(b.date) - new Date(a.date));
 
     // extraer color con el modulo color-thief-node:
-    let dominantColor;
     try {
-        await getColorFromURL(url);
+        dominantColor = await getColorFromURL(url);
     }
     catch (err) {
         console.error("Ha ocurrido un error: ", err);
@@ -91,7 +90,15 @@ app.post('/add-image-form', async (req, res) => {
     }
 
     // comprobar si url está repetida:
-    const isRepeated = images.some(i => i.url.toLocaleLowerCase() == url.toLocaleLowerCase());
+    // hacer un find a bbdd para comprobar si existe una image con la url que nos pasan
+    const image = await database.collection('images').findOne({
+        url: url
+    })
+
+    // si no existe una imagen con dicha url --> findOne devuelve null
+    // si image es diferente a null (!=) --> la imagen está repetida
+    isRepeated = image != null;
+    
     // si está repetida, lanzo un error
     if (isRepeated){
         res.render('new-image-form', {
@@ -111,11 +118,12 @@ app.post('/add-image-form', async (req, res) => {
         //     dominantColor
         // }); 
         
-        /** TODO: insertar un nuevo documento en la colección 'images' de la bbdd 'ironhack'*/
+        // TODO1: insertar un nuevo documento en la colección 'images' de la bbdd 'ironhack'
         database.collection("images").insertOne({
             title, 
             url,
-            date: new Date(date)
+            date: new Date(date),
+            dominantColor
      });
 
         // opción 2: images.push(req.body);
