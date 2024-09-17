@@ -98,7 +98,7 @@ app.post('/add-image-form', async (req, res) => {
     // si no existe una imagen con dicha url --> findOne devuelve null
     // si image es diferente a null (!=) --> la imagen está repetida
     isRepeated = image != null;
-    
+
     // si está repetida, lanzo un error
     if (isRepeated){
         res.render('new-image-form', {
@@ -151,14 +151,16 @@ function isSubstring(s1, s2) {
 }
 
 // OPCIONAL: petición GET para gestionar la búsqueda
-app.get('/search', (req, res) => {
+app.get('/search', async (req, res) => {
     
     // 1. coger el valor del parametro keyword de la query string
     const queryKeyword = req.query.keyword;
     // const searchQuery = new URLSearchParams(window.location.search).get('keyword');
 
     // 2. buscar en la base de datos usando el metodo filter
-    const filteredImages = images.filter((image) => isSubstring(image.title, queryKeyword));
+    
+    // const image = await database.collection('images').findOne((image) => isSubstring(image.title, queryKeyword))
+    // const filteredImages = image
 
         // Otra opción para las mayus-minus: usar el metodo toLowerCase() en el parametro de la query string.
     
@@ -173,7 +175,7 @@ app.get('/search', (req, res) => {
 app.use((err, req, res, next) => {
     console.log(err.stack)
     res.status(500).send('<p>Oops! Something went wrong. Developers will be informed. Thanks for your patience and try back again later, or go back to the <a href="/">home page</a></p>')
-    });
+});
 
 
 
