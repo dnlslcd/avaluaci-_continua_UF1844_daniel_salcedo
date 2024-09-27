@@ -1,6 +1,68 @@
 // importar modulos de terceros
 const express = require('express');
 const morgan = require('morgan');
+const mongoose = require('mongoose');
+
+// TODO: 1. Conectar a la base de datos utilizando mongoose 
+main().catch(err => console.log(err));
+
+// Variable global para almacenar el modelo
+let Image;
+
+async function main() {
+    await mongoose.connect('mongodb+srv://dani:dani@cluster0.hyxsuo4.mongodb.net/ironhackDB');
+    
+
+    // TODO 2: Crear el Schema que representa nuestras imagenes. 
+    // - title , tipo string y de 30 carácteres como mucho
+    // - url, de tipo string y validando contra expresión regular de URL
+    // - date, de tipo Date 
+    // - dominantColor, de tipo Array/String
+    // - TODOS los campos/propiedades son requeridos
+    const imageSchema = new mongoose.Schema({
+        title: {
+            type: String,
+            required: true,
+            maxLength: 30,
+            trim: true, // quita los espacios en blanco al principio y final de string
+            match: /[0-9A-Za-z\s_]+/
+        },
+        date: {
+            type: Date,
+            required: true
+        },
+        url: {
+            type: String,
+            required: true,
+            match: /^(https):\/\/[^\s/$.?#].[^\s]*$/i
+        },
+        dominantColor: {
+            type: [Number], // [12, 45, 255]
+            required: true,
+        }
+    });
+
+    // TODO 3: Asociar el Schema al Model. Asociar el Schema a una colección de MongoDB. Llamaremos a la colección 'images'
+    Image = mongoose.model('Image', imageSchema);
+
+    // TODO 4: Crea una imagen inmediatamente en este punto y comprueba que se ha creado en tu base de datos de MongoDB 
+    // new Image({})... image.save()
+    // const document = new Image({
+    //     title: "Gato",
+    //     date: new Date('2024-02-01'),
+    //     url: "https://images.pexels.com/photos/104827/cat-pet-animal-domestic-104827.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+    //     dominantColor: [200, 200, 200]
+    // });
+
+    // await document.save();
+
+    
+}
+
+
+
+
+
 const {getColorFromURL} = require('color-thief-node');
 
 // const { title } = require('process'); ???
@@ -15,21 +77,7 @@ app.use(express.urlencoded({extended: true}));
 app.use(express.static('public'));
 
 // base de datos de imagenes
-const images = [
-    {
-    title: "happy cat",
-    url: "https://images.pexels.com/photos/45201/kitty-cat-kitten-pet-45201.jpeg"
-}, {
-    title: "happy dog",
-    url: "https://images.pexels.com/photos/1805164/pexels-photo-1805164.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-}, {
-    title: "cat snow",
-    url: "https://images.pexels.com/photos/3923387/pexels-photo-3923387.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-}, {
-    title: "woman in lake",
-    url: "https://images.pexels.com/photos/2365067/pexels-photo-2365067.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-}
-];
+
 
 
 
@@ -44,8 +92,12 @@ app.get('/', (req, res) => {
     
     // 2. usar en el home.ejs el forEach para iterar por todas las imagenes de la variable 'images'.
     // mostrar de momento solo el titulo
+
+    // Iteración 3: Usar Image.find para recuperar todas las imágenes de la base de datos. 
+    // Pasarla a la vista estas imágenes. Cuando lo consigáis, 
+    // probad de modificar la consulta para ordenarlas por fecha decreciente
     res.render('home', {
-        images
+       
     });
 })
 
@@ -76,7 +128,6 @@ app.post('/add-image-form', async (req, res) => {
 
         // TO DO:
     // ordenar las fotografías por fecha de más reciente a más antigua
-    images.sort((a, b) => new Date(b.date) - new Date(a.date));
 
 
     // extraer color con el modulo color-thief-node:
@@ -92,8 +143,9 @@ app.post('/add-image-form', async (req, res) => {
     }
 
     // comprobar si url está repetida:
-    const isRepeated = images.some(i => i.url.toLocaleLowerCase() == url.toLocaleLowerCase());
-        
+    // Iteración 4: Buscar en la base datos si existe UN documento que tenga la misma URL que la imagen que queremos agergar. En tal caso --> isRepeated = true;
+    isRepeated = await Image.findOne({ url: url }) !== null;
+
     // si está repetida, lanzo un error
     if (isRepeated){
         res.render('new-image-form', {
@@ -104,24 +156,21 @@ app.post('/add-image-form', async (req, res) => {
     
     // si no está repetida, todo sigue correctamente
     else {
-        // opción 1 (sacar los campos):
-        images.push({
-            title,
-        // 3. añadir los otros campos del formulario y sus validaciones
-            url,
-            date,
-            dominantColor
-        }); 
-        
+        // opción 1 (sacar los campos):       
         // opción 2: images.push(req.body);
 
+    // Iteración 2; Mongoose-> Recuperar la información del formulario y crear un nuevo documento Image y guardarlo en base de datos
+    const document = new Image ({
+        title,
+        date: new Date(date),
+        url,
+        dominantColor
+    })
         res.render('new-image-form', {
             imageIsAdded: true,
             imageIsRepeated: false
-        });
+        });    
     }
-    
-
 });
 
 /**
@@ -145,13 +194,11 @@ app.get('/search', (req, res) => {
     // const searchQuery = new URLSearchParams(window.location.search).get('keyword');
 
     // 2. buscar en la base de datos usando el metodo filter
-    const filteredImages = images.filter((image) => isSubstring(image.title, queryKeyword));
 
         // Otra opción para las mayus-minus: usar el metodo toLowerCase() en el parametro de la query string.
     
     // 3. usar res.render para renderizar la vista home.ejs y pasarle el array de imagenes filtrado
     res.render('home',{
-        images: filteredImages
     });
 });
 
