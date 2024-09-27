@@ -112,7 +112,8 @@ app.post('/add-image-form', async (req, res) => {
     let isRepeated;
     // 1. actualizar el array 'images' con la información de req.body
     const { title, url, date } = req.body;
-try {
+    
+    try {
     // OPCIONAL: validación del lado servidor de que realmente nos han enviado un title
     // expresión regular para validar el formato del title
     const titleRegex = /^[0-9A-Z\s_]+$/i;
@@ -124,8 +125,7 @@ try {
 
     // extraer color con el modulo color-thief-node:
     dominantColor = await getColorFromURL(url);
-    }
-    catch (err) {
+    } catch (err) {
         console.error("Ha ocurrido un error: ", err);
         res.send('We werent able to get the dominant color from image with URL: ' + url + ". Please, go back and try another URL.");
         // redirigimos la respuesta que le damos al cliente a nuestro manejador de errores:
