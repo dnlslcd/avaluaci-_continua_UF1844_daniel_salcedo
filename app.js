@@ -1,4 +1,4 @@
-// importar modulos de terceros
+/* MÓDULOS DE TERCEROS*/
 const express = require('express');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
@@ -12,7 +12,6 @@ let Image;
 async function main() {
     await mongoose.connect('mongodb+srv://dani:dani@cluster0.hyxsuo4.mongodb.net/ironhackDB');
     
-
     // TODO 2: Crear el Schema que representa nuestras imagenes. 
     // - title , tipo string y de 30 carácteres como mucho
     // - url, de tipo string y validando contra expresión regular de URL
@@ -59,13 +58,7 @@ async function main() {
     
 }
 
-
-
-
-
 const {getColorFromURL} = require('color-thief-node');
-
-// const { title } = require('process'); ???
 
 // creamos una instancia del servidor Express
 const app = express();
@@ -76,19 +69,19 @@ app.use(express.urlencoded({extended: true}));
 // añado el middleware para que el cliente pueda hacer GETs a los recursos publicos en la carpeta 'public'
 app.use(express.static('public'));
 
-// base de datos de imagenes
-
-
-
-
 // especificar a Express que quiero usar EJS como motor de plantillas 
 app.set('view engine', 'ejs');
 
 // usamos el middleware morgan para loggear las peticiones
 app.use(morgan('tiny'));
 
+// variable para indicar en qué puerto tiene que escuchar nuestra app
+const PORT = process.env.PORT || 3001;
+
+/** ENDPOINTS */
+
 // Petición GET a '/' --> renderizo la home.ejs 
-app.get('/', (req, res) => {
+app.get('/', async (req, res) => {
     
     // 2. usar en el home.ejs el forEach para iterar por todas las imagenes de la variable 'images'.
     // mostrar de momento solo el titulo
@@ -96,8 +89,10 @@ app.get('/', (req, res) => {
     // Iteración 3: Usar Image.find para recuperar todas las imágenes de la base de datos. 
     // Pasarla a la vista estas imágenes. Cuando lo consigáis, 
     // probad de modificar la consulta para ordenarlas por fecha decreciente
+    const images = await Image.find().sort({date: -1});
+    
     res.render('home', {
-       
+       images
     });
 })
 
@@ -113,27 +108,22 @@ app.get('/add-image-form', (req, res) => {
 app.post('/add-image-form', async (req, res) => {
     // todos los datos nos vienen en un req.body
     console.log(req.body);
-
+    let dominantColor;
+    let isRepeated;
     // 1. actualizar el array 'images' con la información de req.body
     const { title, url, date } = req.body;
-
+try {
     // OPCIONAL: validación del lado servidor de que realmente nos han enviado un title
     // expresión regular para validar el formato del title
-        const titleRegex = /^[0-9A-Z\s_]+$/i;
+    const titleRegex = /^[0-9A-Z\s_]+$/i;
 
     // si el title no cumple la expresion, lanzo un error
     if (title.length > 30 || !titleRegex.test(title)) {
         return res.status(400).send('Algo ha salido mal...');
     }
 
-        // TO DO:
-    // ordenar las fotografías por fecha de más reciente a más antigua
-
-
     // extraer color con el modulo color-thief-node:
-    let dominantColor;
-    try {
-        await getColorFromURL(url);
+    dominantColor = await getColorFromURL(url);
     }
     catch (err) {
         console.error("Ha ocurrido un error: ", err);
@@ -165,10 +155,14 @@ app.post('/add-image-form', async (req, res) => {
         date: new Date(date),
         url,
         dominantColor
-    })
+    });
+
+    // guardar el documento
+    await document.save();
+
         res.render('new-image-form', {
             imageIsAdded: true,
-            imageIsRepeated: false
+            imageIsRepeated: undefined
         });    
     }
 });
@@ -209,9 +203,7 @@ app.use((err, req, res, next) => {
     res.status(500).send('<p>Oops! Something went wrong. Developers will be informed. Thanks for your patience and try back again later, or go back to the <a href="/">home page</a></p>')
     });
 
-
-
-
-
 // levanto servidor
-app.listen(3001, () => {console.log('Servidor corriendo en el puerto 3001')});
+app.listen(PORT, () => {
+    console.log('Servidor corriendo en el puerto ' + PORT);
+});
